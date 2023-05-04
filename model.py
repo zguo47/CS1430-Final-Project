@@ -21,12 +21,12 @@ class Colorization(nn.Module):
         self.after_fusion = nn.Conv2d(1000+depth_after_fusion, depth_after_fusion, kernel_size = 1)
         # self.after_fusion = Conv2D(depth_after_fusion, (1, 1), activation="relu")
         self.decoder = _build_decoder(depth_after_fusion)
+        self.vgg = Vgg()
 
     def build(self, img_l):
         img_enc = self.encoder(img_l)
-        vgg = Vgg()
         img_ab = torch.cat((img_l,img_l,img_l),1)
-        img_emb = vgg(img_ab)
+        img_emb = self.vgg(img_ab)
         fusion = self.fusion([img_enc, img_emb])
         fusion = self.after_fusion(fusion)
         return self.decoder(fusion)
