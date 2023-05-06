@@ -11,10 +11,10 @@ from functions import *
 def main():
     # Models and Hyperparameters
     device = "cuda" if torch.cuda.is_available() else "cpu"
-    # model = Colorization(256).to(device)
-    # vgg_model = Vgg().to(device)
-    model = Unet().to(device)
-    vgg_model = None
+    model = Colorization(256).to(device)
+    vgg_model = Vgg().to(device)
+    # model = Unet().to(device)
+    # vgg_model = None
     learning_rate = 5e-4
     optimizer =  torch.optim.Adam(model.parameters(), lr=learning_rate)
     loss_function = torch.nn.MSELoss()
@@ -59,8 +59,8 @@ def main():
 
     # Depending on where we execute code
     # save_location = "/home/lliu58/CS1430-Final-Project/experiment1/"
-    save_location = "/users/lliu58/data/lliu58/cv_final/experiment2/" 
-    # save_location = "/users/lliu58/data/lliu58/cv_final/experiment1/"
+    # save_location = "/users/lliu58/data/lliu58/cv_final/experiment2/" 
+    save_location = "/users/lliu58/data/lliu58/cv_final/experiment1/"
 
     best_testing_loss = 100000 # will be replaced by smaller values while training.
     batch_train_losses = []
