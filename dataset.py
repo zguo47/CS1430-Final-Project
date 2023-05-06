@@ -1,13 +1,11 @@
 import torch
-import torch.nn as nn
 import numpy as np
 import os
-import matplotlib.pyplot as plt
 
 from PIL import Image
 from torch.utils.data import Dataset, DataLoader
 from torchvision import transforms, utils
-from skimage import io, transform
+import skimage
 
 class Dataset1(Dataset):
     def __init__(self, gray_dir, color_dir, transform):

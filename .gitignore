@@ -13,3 +13,9 @@
 **/.DS_Store/
 .vscode
 .idea
+
+*.pth
+*.sh
+
+experiment1/
+experiment2/
