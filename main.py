@@ -8,7 +8,7 @@ from model import *
 from dataset import *
 from functions import *
 
-def main():
+def main(cont=False):
     # Models and Hyperparameters
     device = "cuda" if torch.cuda.is_available() else "cpu"
     # model = Colorization(256).to(device)
@@ -20,7 +20,7 @@ def main():
     loss_function = torch.nn.MSELoss()
     output_size = (224, 224)
     batch_size = 16
-    num_epochs = 50
+    num_epochs = 100
 
     # Prepare dataset1
     # On google drive
@@ -59,8 +59,10 @@ def main():
 
     # Depending on where we execute code
     # save_location = "/home/lliu58/CS1430-Final-Project/experiment1/"
-    save_location = "/users/lliu58/data/lliu58/cv_final/experiment2/" 
+    save_location = "/users/lliu58/data/lliu58/cv_final/experiment5/" 
     # save_location = "/users/lliu58/data/lliu58/cv_final/experiment1/"
+    if cont:
+        model.load_state_dict(torch.load(save_location + "best_validation_model.pth"))
 
     best_testing_loss = 100000 # will be replaced by smaller values while training.
     batch_train_losses = []
@@ -74,11 +76,18 @@ def main():
         batch_test_losses.extend(test_losses)
         print(f"Epoch {epoch+1}, avg train loss {epoch_train_loss:.3f}, avg test loss {epoch_test_loss:.3f}")
         if best_testing_loss > epoch_test_loss:
-            torch.save(model.state_dict(), save_location + "best_validation_model.pth")
+            if cont:
+                torch.save(model.state_dict(), save_location + "best_validation_model1.pth")
+            else:
+                torch.save(model.state_dict(), save_location + "best_validation_model.pth")
             print(f"Epoch {epoch+1} is saved!")
             best_testing_loss = epoch_test_loss
-    np.save(save_location+"training_losses.npy", np.array(batch_train_losses))
-    np.save(save_location+"testing_losses.npy", np.array(batch_test_losses))
+    if not cont:
+        np.save(save_location+"training_losses.npy", np.array(batch_train_losses))
+        np.save(save_location+"testing_losses.npy", np.array(batch_test_losses))
+    else:
+        np.save(save_location+"training_losses1.npy", np.array(batch_train_losses))
+        np.save(save_location+"testing_losses1.npy", np.array(batch_test_losses))
 
 if __name__ == "__main__":
     main()

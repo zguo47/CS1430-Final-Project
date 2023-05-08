@@ -1,16 +1,13 @@
-"""
-Given the L channel of an Lab image (range [0, 1]), output a prediction over
-the a and b channels in the range [0, 1].
-In the neck of the conv-deconv network use the features from a feature extractor
-(e.g. Inception) and fuse them with the conv output.
-"""
-
 import cv2
 import torchvision
 import torch
 from torch import nn
 
-
+#########################################################################################################################
+# Deep Koalarization, but changed its pretrained weights 
+# Given a grayscale image (range [0, 1]), output a prediction over its RGB channels in the range [0, 1].
+# In the neck of the conv-deconv network use the features from a feature extractor and fuse them with the conv output.
+#########################################################################################################################
 class Colorization(nn.Module):
     def __init__(self, depth_after_fusion):
         super().__init__()
@@ -100,7 +97,9 @@ class FusionLayer(nn.Module):
         # (batch_size, width, height, embedding_len + depth)
         return imgs_shape[:3] + (imgs_shape[3] + embs_shape[1],)
 
+#########################################################################################################################
 # Unet itself could be trained to colorize images
+#########################################################################################################################
 class Unet(torch.nn.Module):
     def __init__(self):
         super().__init__()
@@ -206,3 +205,68 @@ class Unet(torch.nn.Module):
         x1 = self.up_sample1(x1) # shape [B, 64, H, W]
         x0 = self.conv1(torch.cat((x0, x1), 1)) # shape [B, 64, H, W]
         return self.conv0(x0)
+
+#########################################################################################################################
+# Conditional GAN, where the generator is the Unet defined above
+#########################################################################################################################
+class Dis(torch.nn.Module):
+    def __init__(self):
+        super().__init__()
+        # Initialize layers
+        self.block1 = nn.Sequential(
+                            nn.Conv2d(in_channels=4, out_channels=64, kernel_size=4, stride=2, padding=(1,1)), 
+                            nn.LeakyReLU(0.2, inplace=True) 
+                        )
+        self.block2 = nn.Sequential(
+                            nn.Conv2d(in_channels=64, out_channels=128, kernel_size=4, stride=2, padding=(1,1), bias=False), 
+                            nn.BatchNorm2d(128), 
+                            nn.LeakyReLU(0.2, inplace=True) 
+                        )
+        self.block3 = nn.Sequential(
+                            nn.Conv2d(in_channels=128, out_channels=256, kernel_size=4, stride=2, padding=(1,1), bias=False), 
+                            nn.BatchNorm2d(256), 
+                            nn.LeakyReLU(0.2, inplace=True) 
+                        )
+        self.block4 = nn.Sequential(
+                            nn.Conv2d(in_channels=256, out_channels=512, kernel_size=4, stride=1, padding=(1,1), bias=False), 
+                            nn.BatchNorm2d(512), 
+                            nn.LeakyReLU(0.2, inplace=True) 
+                        )
+        self.block5 = nn.Conv2d(in_channels=512, out_channels=1, kernel_size=4, stride=1, padding=(1,1))
+        self.dense = nn.Sequential(nn.Flatten(), 
+                                   nn.Linear(in_features=676, out_features=15),
+                                   nn.Linear(in_features=15, out_features=1), 
+                                   nn.Sigmoid())
+
+    
+    def forward(self, img_ab, img_l):
+        img_comb = torch.cat((img_ab, img_l), dim=1)
+        layers = [self.block1, self.block2, self.block3, self.block4, self.block5]
+        for layer in layers:
+          img_comb = layer(img_comb)
+        img_comb = self.dense(img_comb)
+        return img_comb
+
+class CGAN(torch.nn.Module):
+    def __init__(self):
+        super().__init__()
+        self.lda = 1e-4 # hyperparameter for l1 loss
+        self.net_G = Unet()
+        self.net_D = Dis()
+
+    def forward(self, imgs_l, imgs_ab):
+        fake_color = self.net_G(imgs_l)
+        fake_prob = self.net_D(fake_color, imgs_l)
+        true_prob = self.net_D(imgs_ab, imgs_l)
+        return fake_prob, true_prob
+
+    def loss(self, fake_prob, true_prob):
+        # fake_prob and true_prob are both of shape [B, 1]
+        gan_loss = torch.log(true_prob) + torch.log(1 - fake_prob)
+        return torch.mean(gan_loss) + self.l1_loss()
+
+    def l1_loss(self):
+        l1_loss = 0
+        for param in self.parameters():
+            l1_loss += torch.norm(param, 1)
+        return l1_loss

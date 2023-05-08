@@ -16,6 +16,7 @@
 
 *.pth
 *.sh
+*.zip
 
 experiment1/
 experiment2/

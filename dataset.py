@@ -12,7 +12,6 @@ class Dataset1(Dataset):
         # gray_dir: directory of grayscale images
         # color_dir: directory of color images
         # transform: the possible transformation
-        # out_size: size of output image
         self.gray_dir = gray_dir
         self.color_dir = color_dir
         self.transform = transform
@@ -43,3 +42,44 @@ class Dataset1(Dataset):
         color_image = Image.open(self.color_dir+'image' + index + '.jpg').convert("RGB")
         
         return self.transform(gray_image), self.transform(color_image)
+
+class Dataset3(Dataset):
+    def __init__(self, gray_dir, color_dir, transform):
+        # gray_dir: directory of grayscale images
+        # color_dir: directory of color images
+        # transform: the possible transformation
+        self.gray_dir = gray_dir
+        self.color_dir = color_dir
+        self.transform = transform
+        self.filelist = self.make_filelist(self.gray_dir, self.color_dir)
+    
+    def __len__(self):
+        return len(self.filelist)
+    
+    def __getitem__(self, idx):
+        gray_filename = self.gray_dir + self.filelist[idx]
+        color_filename = self.color_dir + self.filelist[idx]
+        gray_image = Image.open(gray_filename).convert("L")
+        color_image = Image.open(color_filename).convert("RGB")
+        return self.transform(gray_image), self.transform(color_image)
+    
+    def make_filelist(self, gray_dir, color_dir):
+        filelist1 = []
+        for root, dirs, files in os.walk(gray_dir):
+            for file in files:
+                if file.endswith(".jpg"):
+                    s = os.path.join(root, file)
+                    if s.startswith(gray_dir):
+                        filelist1.append(s.replace(gray_dir, ''))
+        filelist2 = []
+        for root, dirs, files in os.walk(color_dir):
+            for file in files:
+                if file.endswith(".jpg"):
+                    s = os.path.join(root, file)
+                    if s.startswith(color_dir):
+                        filelist2.append(s.replace(color_dir, ''))
+        filelist = []
+        for name in filelist1:
+            if name in filelist2:
+                filelist.append(name)
+        return filelist
