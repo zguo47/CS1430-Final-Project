@@ -38,7 +38,7 @@ dataset3_gray_dir = "<path to dataset 3 training gray-scale data>"
 dataset3_color_dir = "<path to dataset 3 training RGB data>"
 
 train_dataset = Dataset3(dataset3_gray_dir, dataset3_color_dir, transform)
-test_dataset = Dataset3(test_gray_dir, test_color_dir, transform, testing=True)
+test_dataset = Dataset1(test_gray_dir, test_color_dir, transform, testing=True)
 train_dataloader = DataLoader(dataset=train_dataset, batch_size=batch_size, shuffle=True, drop_last=True)
 test_dataloader = DataLoader(dataset=test_dataset, batch_size=batch_size, shuffle=False, drop_last=True)
 
