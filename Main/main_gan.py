@@ -4,9 +4,9 @@ import torch.nn as nn
 from torchvision import transforms, utils
 import numpy as np
 
-from model import *
-from dataset import *
-from functions import *
+from Model.model import *
+from Dataset.dataset import *
+from Model.functions import *
 
 device = "cuda" if torch.cuda.is_available() else "cpu"
 
