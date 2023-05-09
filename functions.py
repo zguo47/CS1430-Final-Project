@@ -46,8 +46,8 @@ def training_loop_cgan(model, optimizer, train_dataloader, device):
       optimizer.zero_grad()
       imgs_l = imgs_l.to(device)
       imgs_true_ab = imgs_true_ab.to(device)
-      fake_prob, true_prob = model.forward(imgs_l, imgs_true_ab)
-      batch_loss = model.loss(fake_prob, true_prob)
+      fake_prob, true_prob, fake_color = model.forward(imgs_l, imgs_true_ab)
+      batch_loss = model.loss(fake_prob, true_prob, fake_color, imgs_true_ab)
       if (batch_idx+1) % 10 == 0:
             print(f"Batch {batch_idx+1}, Loss: {batch_loss:.4f}")
       batch_loss.backward()
@@ -62,8 +62,8 @@ def evaluation_loop_cgan(model, dataloader, device):
       imgs_l_val, imgs_true_ab_val = img
       imgs_l_val = imgs_l_val.to(device)
       imgs_true_ab_val = imgs_true_ab_val.to(device)
-      fake_prob, true_prob = model.forward(imgs_l_val, imgs_true_ab_val)
-      batch_loss = model.loss(fake_prob, true_prob)
+      fake_prob, true_prob, fake_color = model.forward(imgs_l_val, imgs_true_ab_val)
+      batch_loss = model.loss(fake_prob, true_prob, fake_color, imgs_true_ab_val)
       batch_loss.backward()
       loss_list.append(batch_loss.detach().cpu().numpy())
     return loss_list

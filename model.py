@@ -13,9 +13,7 @@ class Colorization(nn.Module):
         super().__init__()
         self.encoder = _build_encoder()
         self.fusion = FusionLayer()
-        # self.dense = _build_dense()
         self.after_fusion = nn.Conv2d(1000+depth_after_fusion, depth_after_fusion, kernel_size = 1)
-        # self.after_fusion = Conv2D(depth_after_fusion, (1, 1), activation="relu")
         self.decoder = _build_decoder(depth_after_fusion)
 
     def forward(self, img_l, vgg):
@@ -250,7 +248,8 @@ class Dis(torch.nn.Module):
 class CGAN(torch.nn.Module):
     def __init__(self):
         super().__init__()
-        self.lda = 1e-4 # hyperparameter for l1 loss
+        self.lda = 50 # hyperparameter for l2 loss
+        self.buffer = 1e-2
         self.net_G = Unet()
         self.net_D = Dis()
 
@@ -258,15 +257,11 @@ class CGAN(torch.nn.Module):
         fake_color = self.net_G(imgs_l)
         fake_prob = self.net_D(fake_color, imgs_l)
         true_prob = self.net_D(imgs_ab, imgs_l)
-        return fake_prob, true_prob
+        return fake_prob, true_prob, fake_color
 
-    def loss(self, fake_prob, true_prob):
+    def loss(self, fake_prob, true_prob, fake_color, imgs_ab):
         # fake_prob and true_prob are both of shape [B, 1]
-        gan_loss = torch.log(true_prob) + torch.log(1 - fake_prob)
-        return torch.mean(gan_loss) + self.l1_loss()
-
-    def l1_loss(self):
-        l1_loss = 0
-        for param in self.parameters():
-            l1_loss += torch.norm(param, 1)
-        return l1_loss
+        gan_loss = torch.mean(torch.log(true_prob + self.buffer) + torch.log(1 - fake_prob + self.buffer))
+        l1loss = nn.functional.l1_loss(fake_color, imgs_ab)
+        print(l1loss)
+        return gan_loss + l1loss
