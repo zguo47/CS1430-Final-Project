@@ -1,4 +1,13 @@
 # FinalProject
 
-This repository contains templates for CSCI 1430 project deliverables of many kinds: proposals, progress checks, project reports, presentations, posters, etc.
-Each template may not be required for your final project, e.g., some semesters we might not perform presentations. We simply collect them all here for ease.
+This repository contains the code and poster for our final project. 
+
+The repository is divided into several directories: 
+- ``Dataset`` contains python code for custom dataset classes and a .ipynb file for data collection on Colab. 
+- ``Main`` contains python code for initializing models and training them. 
+- ``Model`` contains python code for our three models and helper functions. 
+- ``Results`` contains .ipynb file for visualizing loss and sample results.
+
+We also included Final Poster and shell script in the root directory.
+
+Team JustSoMeKernels
