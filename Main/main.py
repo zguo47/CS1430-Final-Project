@@ -4,9 +4,9 @@ import torch.nn as nn
 from torchvision import transforms, utils
 import numpy as np
 
-from model import *
-from dataset import *
-from functions import *
+from Model.model import *
+from Dataset.dataset import *
+from Model.functions import *
 
 def main(cont=False):
     # Models and Hyperparameters
@@ -24,20 +24,20 @@ def main(cont=False):
 
     # Prepare dataset1
     # On google drive
-    # train_gray_dir = "/content/drive/Shareddrives/CVFinalProject/data/dataset1/train_black/"
-    # train_color_dir = "/content/drive/Shareddrives/CVFinalProject/data/dataset1/train_color/"
-    # test_gray_dir = "/content/drive/Shareddrives/CVFinalProject/data/dataset1/test_black/"
-    # test_color_dir = "/content/drive/Shareddrives/CVFinalProject/data/dataset1/test_color/"
+    # train_gray_dir = "<path to training gray-scale images>"
+    # train_color_dir = "<path to training ground truth RGB images>"
+    # test_gray_dir = "<path to testing gray-scale images>"
+    # test_color_dir = "<path to testing ground truth RGB images>"
     # On computing cluster
-    train_gray_dir = "/users/lliu58/scratch/data/train_black/"
-    train_color_dir = "/users/lliu58/scratch/data/train_color/"
-    test_gray_dir = "/users/lliu58/scratch/data/test_black/"
-    test_color_dir = "/users/lliu58/scratch/data/test_color/"
+    train_gray_dir = "<path to training gray-scale images>"
+    train_color_dir = "<path to training ground truth RGB images>"
+    test_gray_dir = "<path to testing gray-scale images>"
+    test_color_dir = "<path to testing ground truth RGB images>"
     # On grid
-    # train_gray_dir = "/home/lliu58/data/train_black/"
-    # train_color_dir = "/home/lliu58/data/train_color/"
-    # test_gray_dir = "/home/lliu58/data/test_black/"
-    # test_color_dir = "/home/lliu58/data/test_color/"
+    # train_gray_dir = "<path to training gray-scale images>"
+    # train_color_dir = "<path to training ground truth RGB images>"
+    # test_gray_dir = "<path to testing gray-scale images>"
+    # test_color_dir = "<path to testing ground truth RGB images>"
     
     transform = transforms.Compose(
         [
@@ -51,16 +51,16 @@ def main(cont=False):
     test_dataloader = DataLoader(dataset=test_dataset, batch_size=batch_size, shuffle=False, drop_last=True)
 
     # Prepare dataset2
-    # gray_dir = "/users/lliu58/scratch/dataset2/l/gray_scale.npy"
-    # R_dir = "/users/lliu58/scratch/dataset2/ab/ab1.npy"
-    # G_dir = "/users/lliu58/scratch/dataset2/ab/ab2.npy"
-    # B_dir = "/users/lliu58/scratch/dataset2/ab/ab3.npy"
+    # gray_dir = "<path to training l gray-scale images>"
+    # R_dir = "<path to training ground-truth ab red images>"
+    # G_dir = "<path to training ground-truth ab green images>"
+    # B_dir = "<path to trianing ground-truth ab blue images>"
     # gray_dataset2, R_dataset2, G_dataset2, B_dataset2 = get_dataset2(gray_dir, R_dir, G_dir, B_dir)
 
     # Depending on where we execute code
-    # save_location = "/home/lliu58/CS1430-Final-Project/experiment1/"
-    save_location = "/users/lliu58/data/lliu58/cv_final/experiment5/" 
-    # save_location = "/users/lliu58/data/lliu58/cv_final/experiment1/"
+    # save_location = "<path to save location>"
+    save_location = "<path to save location>" 
+    # save_location = "<path to save location>"
     if cont:
         model.load_state_dict(torch.load(save_location + "best_validation_model.pth"))
 
